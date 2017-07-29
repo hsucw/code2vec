@@ -89,19 +89,12 @@ with graph.as_default():
 
 
     # Compute the cosine similarity between minibatch examples and all embeddings.
-    all_words_embeddings = tf.reduce_mean( tf.nn.embedding_lookup(embeddings, vocabulary) , 1 )
-    norms = tf.sqrt(tf.reduce_sum( tf.square( all_words_embeddings) , 1, keep_dims=True ))
-    test_norm = tf.sqrt(tf.reduce_sum(tf.square(test_vec)))
-    all_words_embeddings = all_words_embeddings / (norms * test_norm)
+    all_words_embeddings = tf.nn.embedding_lookup(embeddings, vocabulary)
+    all_words_embeddings = tf.reduce_mean(all_words_embeddings, 1)
+    norm = tf.sqrt(tf.reduce_sum(tf.square(all_words_embeddings), 1, keep_dims=True))
+    all_words_embeddings = all_words_embeddings / norm
 
-
-    #origin
-    #norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, keep_dims=True))
-    #normalized_embeddings = embeddings / norm
-    #all_words_embeddings = tf.nn.embedding_lookup(normalized_embeddings, vocabulary) / tf.sqrt(tf.reduce_sum(tf.square(test_vec)))
-    #all_words_embeddings = tf.reduce_mean(all_words_embeddings, 1)
-
-    similarity = tf.matmul(test_vec, all_words_embeddings, transpose_b=True)
+    similarity = tf.matmul(test_vec, all_words_embeddings, transpose_b=True) / tf.sqrt(tf.reduce_sum(tf.square(test_vec)))
 
     # Add variable initializer.
     init = tf.global_variables_initializer()
@@ -140,11 +133,10 @@ with tf.Session(graph=graph) as session:
                 if idx == 0:
                     possible_words = bloomfilter.get_opcode_in_table(idx, val)
                 else:
-                    possible_words &= bloomfilter.get_opcode_in_table(idx, val)
+                    possible_words = possible_words & bloomfilter.get_opcode_in_table(idx, val)
             # opcode_asm = pwn.disasm(opcode)
             if len(possible_words) == 0:
-                pass
-                #print('Unable to find reversed opcode for: {}'.format(close_opcode_indice))
+                print('Unable to find reversed opcode for: {}'.format(close_opcode_indice))
             else:
                 print('{}\t{}'.format(distance[k], possible_words))
         print('=' * 80)

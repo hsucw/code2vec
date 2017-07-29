@@ -61,7 +61,7 @@ def build_dataset(words, n_words):
     dictionary = dict()
     for word, _ in count:
         dictionary[word] = len(dictionary)
-    
+
     data = list()
     unk_count = 0
     for word in words:
@@ -161,8 +161,8 @@ with graph.as_default():
         print('embed.shape = ', embed.shape)
         embed = tf.reduce_mean(embed, 1)
         print('embed.shape = ', embed.shape)
-        
-        
+
+
 
         # Construct the variables for the NCE loss
         nce_weights = tf.Variable(

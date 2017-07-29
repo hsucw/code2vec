@@ -33,10 +33,11 @@ def read_data(filename, n_words):
 
         unsorted_res = dict()
         for w in filter_set:
+            if w == is_tuple:
+                print('Found')
             sorted_tuple = tuple(sorted(list(w)))
             if sorted_tuple in most_common_words:
                 unsorted_res[w] = most_common_words[sorted_tuple]
-    
     del words
     del count
     del filter_set
@@ -63,12 +64,12 @@ for word_tuple, word_count in most_common_words.items():
         if idx == 0:
             possible_words = bloomfilter.get_opcode_in_table(idx, val)
         else:
-            possible_words &= bloomfilter.get_opcode_in_table(idx, val)
-            
+            possible_words = possible_words & bloomfilter.get_opcode_in_table(idx, val)
+
     if len(possible_words) == 0:
         print('Unable to find reversed words for: {}'.format(word_tuple))
     else:
         output_file.write('{}\t#{}\t{}\n'.format(possible_words, word_tuple, word_count))
 
 output_file.close()
-    
+
